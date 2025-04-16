@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>収支管理アプリ</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+	<script defer>
+	    document.addEventListener("DOMContentLoaded", function() {
+	        // ✅ 今日の日付をセット
+	        const today = new Date();
+	        const yyyy = today.getFullYear();
+	        const mm = String(today.getMonth() + 1).padStart(2, '0');
+	        const dd = String(today.getDate()).padStart(2, '0');
+	        document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+
+	        // ✅ 支出を選んだら金額をマイナスにする
+	        const typeSelect = document.getElementById("type");
+	        const amountInput = document.getElementById("amount");
+
+	        typeSelect.addEventListener("change", function() {
+	            let value = amountInput.value;
+	            
+	            if (typeSelect.value === "支出") {
+	                if (value && !value.startsWith("-")) {
+	                    amountInput.value = "-" + value;
+	                }
+	            } else {
+	                amountInput.value = value.replace("-", ""); // 収入ならマイナスを削除
+	            }
+	        });
+
+	        amountInput.addEventListener("input", function() {
+	            if (typeSelect.value === "支出" && !amountInput.value.startsWith("-")) {
+	                amountInput.value = "-" + amountInput.value;
+	            }
+	        });
+	    });
+	</script>
+
+
+	</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">💰 収支管理アプリ</h1>
+
+        <!-- 入力フォーム -->
+		<!-- ✅ 追加フォームの修正 -->
+		<form method="POST" action="/">  <!-- ← action="/" を追加 -->
+		    <div class="mb-3">
+		        <label for="date" class="form-label">日付</label>
+		        <input type="date" class="form-control" id="date" name="date" required>
+		    </div>
+		    <div class="mb-3">
+		        <label for="item" class="form-label">項目</label>
+		        <select class="form-select" id="item" name="item" required>
+		            <option value="生活費">生活費</option>
+		            <option value="食費">食費</option>
+		            <option value="収入">収入</option>
+		        </select>
+		    </div>
+		    <div class="mb-3">
+		        <label for="type" class="form-label">種類</label>
+		        <select class="form-control" id="type" name="type" required>
+		            <option value="収入">収入</option>
+		            <option value="支出">支出</option>
+		        </select>
+		    </div>
+		    <div class="mb-3">
+		        <label for="amount" class="form-label">金額</label>
+		        <input type="number" class="form-control" id="amount" name="amount" required>
+		    </div>
+		    <button type="submit" class="btn btn-primary">追加</button>
+		</form>
+
+		<!-- ✅ 検索フォームの修正 -->
+		<form method="GET" action="/search">  <!-- action="/search" のまま -->
+		    <input type="text" class="form-control" name="query" placeholder="検索キーワード">
+		    <button type="submit" class="btn btn-secondary">検索</button>
+		</form>
+
+
+        
+		{% if query %}
+		<p>「{{ query }}」の検索結果:</p>
+		{% endif %}
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>日付</th>
+                    <th>項目</th>
+                    <th>種類</th>
+                    <th>金額</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record[0] }}</td>
+                    <td>{{ record[1] }}</td>
+                    <td>{{ record[2] }}</td>
+                    <td>{{ record[3] }}円</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
